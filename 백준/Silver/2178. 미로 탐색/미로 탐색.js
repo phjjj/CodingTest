@@ -21,7 +21,7 @@ while (queue.length) {
     const xPos = x + dir[i][0];
     const yPos = y + dir[i][1];
 
-    if (0 <= xPos && yPos > -1 && xPos < M && yPos < N) {
+    if (0 <= xPos && yPos >=0 && xPos < M && yPos < N) {
       if (map[yPos][xPos] === 1) {
         map[yPos][xPos] = v + 1;
         queue.push([xPos, yPos, v + 1]);
