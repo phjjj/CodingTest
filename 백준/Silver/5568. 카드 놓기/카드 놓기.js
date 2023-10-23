@@ -1,31 +1,26 @@
+const fs = require("fs");
 const filePath = process.platform === "linux" ? "/dev/stdin" : "test.txt";
-const input = require("fs").readFileSync(filePath).toString().trim().split("\n");
-const N = +input[0];
-const K = +input[1];
-let arr = [];
-let newArr = [];
-
-let answer = new Set();
-
-for (let i = 2; i < input.length; i++) {
-  arr.push(+input[i]);
-}
-let visited = Array.from({ length: N }, () => false);
-
-function dfs(dep, n) {
-  if (dep === K) {
-    answer.add(n);
+const input = fs.readFileSync(filePath).toString().trim().split("\n");
+const N = +input.shift();
+const K = +input.shift();
+const arr = input;
+const visited = Array.from(({ length: N }, () => false));
+let str = "";
+let set = new Set();
+function dfs(dep, str) {
+  if (dep == K) {
+    set.add(str);
     return;
   }
-
   for (let i = 0; i < arr.length; i++) {
     if (!visited[i]) {
       visited[i] = true;
 
-      dfs(dep + 1, n + arr[i]);
+      dfs(dep + 1, str + arr[i]);
       visited[i] = false;
     }
   }
 }
+
 dfs(0, "");
-console.log(answer.size);
+console.log(set.size);
