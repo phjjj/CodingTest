@@ -9,8 +9,8 @@ let ansY = 0;
 // 아래, 오른쪽, 오른쪽 아래 대각선, 오른쪽 위 대각선
 const dir = [
   [1, 0],
-  [1, 1],
   [0, 1],
+  [1, 1],
   [-1, 1],
 ];
 
@@ -43,11 +43,11 @@ function check(x, y, color) {
       let prevX = x - dir[i][0];
       let prevY = y - dir[i][1];
       if (prevY >= 0 && prevY < 19 && prevX >= 0 && prevX < 19) {
-        if (map[prevX][prevY] === color) {
+        if (map[prevX][prevY] === map[x][y]) {
           continue;
         }
       }
-      answer = color;
+      answer = map[x][y];
       ansX = x;
       ansY = y;
       return;
