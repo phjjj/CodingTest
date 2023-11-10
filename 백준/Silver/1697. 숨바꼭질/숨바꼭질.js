@@ -1,39 +1,32 @@
 const fs = require("fs");
 const filePath = process.platform === "linux" ? "/dev/stdin" : "test.txt";
-const input = fs.readFileSync(filePath).toString().trim().split("\n");
+const input = fs.readFileSync(filePath, "utf8").trim().split("\n");
 
-const [N, K] = input.join("").split(" ").map(Number);
+const [N, K] = input.shift().split(" ").map(Number);
 const visited = Array.from({ length: K }, () => false);
+let queue = [];
 
-function bfs(start, end) {
-  // 1칸뒤로, 1칸앞으로, 현재위치*2
-  let dir = [-1, 1, 2];
-  let queue = [[start, 0]];
-  let idx = 0;
-  while (queue.length) {
-    // console.log(queue);
+queue.push([N, 0]);
 
-    const [pos, v] = queue.shift();
+let dir = [1, -1, 2];
 
-    if (pos === end) {
-      return v;
+while (queue.length) {
+  const [x, move] = queue.shift();
+  if (x === K) {
+    return console.log(move);
+  }
+  for (let i = 0; i < 3; i++) {
+    let moveX = 0;
+    if (i == 2) {
+      moveX = x * dir[i];
+    } else {
+      moveX = x + dir[i];
     }
-
-    for (let i = 0; i < 3; i++) {
-      let movePos = 0;
-
-      if (i === 2) {
-        movePos = pos * dir[i];
-      } else {
-        movePos = pos + dir[i];
-      }
-
-      if (movePos >= 0 && movePos <= 100000 && !visited[movePos]) {
-        visited[movePos] = true;
-        queue.push([movePos, v + 1]);
-      }
-    }
+    if (moveX < 0 || moveX > 100000 || visited[moveX]) continue;
+    visited[moveX] = true;
+    queue.push([moveX, move + 1]);
   }
 }
-
-console.log(bfs(N, K));
+// 수빈이는 x+1,x-1,2x 로 이동 가능
+// 동생 K와 같을 경우 출력
+//
