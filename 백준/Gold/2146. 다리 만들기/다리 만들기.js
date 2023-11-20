@@ -69,7 +69,6 @@ function bfs(islandNumber) {
     for (let j = 0; j < N; j++) {
       if (map[i][j] === islandNumber) {
         queue.push([i, j, 0]);
-        seaVisited[i][j] = true;
       }
     }
   }
@@ -103,7 +102,5 @@ console.log(answer);
 // 2중 for문으로 동서남북에 섬이 있고, 맵 밖으로 안나가고, 방문한적이없으면 큐에 넣고 bfs
 // visited 계속해서 초기화 해줘야함
 
-// 동서남북 체크 -> 섬이 있을 경우 그 섬의 번호 저장 , 섬이 없으면 continue
-// 섬의 번호를 가진 상태로 새로운 섬이 나올 때 까지 경로 탐색
-// 새로운 섬이 나 올경우, 이동 횟수 반환
+// 각 섬마다 번호 받고 bfs 실행
 //
