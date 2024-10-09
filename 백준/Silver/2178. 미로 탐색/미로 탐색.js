@@ -1,32 +1,46 @@
-const fs = require("fs");
 const filePath = process.platform === "linux" ? "/dev/stdin" : "test.txt";
-const input = fs.readFileSync(filePath).toString().trim().split("\n");
+const input = require("fs")
+  .readFileSync(filePath)
+  .toString()
+  .trim()
+  .split("\n");
+
 const [N, M] = input.shift().split(" ").map(Number);
-
-const map = input.map((v) => v.split("").map((x) => +x));
-const queue = [[0, 0, 1]];
-// 상, 하, 좌, 우
+const map = input.map((v) => v.split("").map(Number));
 const dir = [
-  [-1, 0],
-  [1, 0],
-  [0, -1],
   [0, 1],
+  [0, -1],
+  [1, 0],
+  [-1, 0],
 ];
+const visited = Array.from({ length: N }, () =>
+  Array.from({ length: M }, () => false)
+);
 
-while (queue.length) {
-  const [x, y, v] = queue.shift();
+function bfs(x, y) {
+  let queue = [[x, y, 1]];
+  visited[x][y] = true;
+  let min = 0;
+  while (queue.length) {
+    let [curX, curY, v] = queue.shift();
+    if (curX === N - 1 && curY === M - 1) {
+      console.log(v);
+    }
+    for (let i = 0; i < 4; i++) {
+      const moveX = curX + dir[i][0];
+      const moveY = curY + dir[i][1];
 
-  for (let i = 0; i < 4; i++) {
-    //i=0 일때 상 ,1일때 하, ...
-    const xPos = x + dir[i][0];
-    const yPos = y + dir[i][1];
-
-    if (0 <= xPos && yPos >=0 && xPos < M && yPos < N) {
-      if (map[yPos][xPos] === 1) {
-        map[yPos][xPos] = v + 1;
-        queue.push([xPos, yPos, v + 1]);
+      if (moveX >= 0 && moveY >= 0 && moveX < N && moveY < M) {
+        if (!visited[moveX][moveY] && map[moveX][moveY] === 1) {
+          queue.push([moveX, moveY, v + 1]);
+          visited[moveX][moveY] = true;
+        }
       }
     }
   }
 }
-console.log(map[N - 1][M - 1]);
+
+bfs(0, 0);
+
+// NxM크기에서 NxM의 위치까지의 최소 칸
+// 큐에서 front값이 먼저 NxM일 경우에 최소 칸으로 도착한거다
