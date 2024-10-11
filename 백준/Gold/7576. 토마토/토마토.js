@@ -1,54 +1,51 @@
-const fs = require("fs");
 const filePath = process.platform === "linux" ? "/dev/stdin" : "test.txt";
-const input = fs.readFileSync(filePath).toString().trim().split("\n");
+const input = require("fs")
+  .readFileSync(filePath)
+  .toString()
+  .trim()
+  .split("\n");
 
-const [X, Y] = input.shift().split(" ");
-
-// map
+const [M, N] = input.shift().split(" ").map(Number);
 const map = input.map((v) => v.split(" ").map(Number));
-// 방문체크
-const visited = Array.from({ length: Y }, () => []).map((v) => (v = Array.from({ length: X }, () => false)));
 
-let queue = [];
-let day = 0;
-// 익은 토마토를 큐에 넣고 시작
-for (let i = 0; i < map.length; i++) {
-  for (let j = 0; j < map[0].length; j++) {
-    if (map[i][j] === 1) {
-      queue.push([i, j, 0]);
-    } else if (map[i][j] === -1) {
-      visited[i][j] = true;
-    }
-  }
-}
-
-// 위치검사
-let dir = [
-  [-1, 0],
-  [1, 0],
+const dir = [
   [0, 1],
   [0, -1],
+  [1, 0],
+  [-1, 0],
 ];
-let idx = 0;
-while (queue.length != idx) {
-  const [x, y, v] = queue[idx];
 
-  if (!visited[x][y]) {
+const queue = [];
+let cnt = 0;
+
+function bfs() {
+  let idx = 0;
+  while (queue.length != idx) {
+    let [curX, curY, v] = queue[idx];
+
     for (let i = 0; i < 4; i++) {
-      const xPos = x + dir[i][0];
-      const yPos = y + dir[i][1];
+      const moveX = curX + dir[i][0];
+      const moveY = curY + dir[i][1];
 
-      if (xPos >= 0 && yPos >= 0 && xPos < map.length && yPos < map[0].length) {
-        if (map[xPos][yPos] === 0) {
-          map[xPos][yPos] = 1;
-          queue.push([xPos, yPos, v + 1]);
+      // 만약 빈 상자 0일 경우
+      if (moveX >= 0 && moveY >= 0 && moveX < N && moveY < M) {
+        if (map[moveX][moveY] === 0) {
+          queue.push([moveX, moveY, v + 1]);
+          map[moveX][moveY] = 1;
         }
       }
     }
+    idx++;
+    cnt = v;
   }
-  idx++;
-  day = v;
 }
+
+for (let i = 0; i < N; i++) {
+  for (let j = 0; j < M; j++) {
+    if (map[i][j] === 1) queue.push([i, j, 0]);
+  }
+}
+bfs();
 
 let no = "";
 map.forEach((tomato) => {
@@ -59,4 +56,16 @@ map.forEach((tomato) => {
 
 if (no) {
   console.log(-1);
-} else console.log(day);
+} else console.log(cnt);
+// 토마토는 하루마다 상하좌우 익게한다
+// 최소 일수 구하기
+
+// 토마토가 들어있지 않는 박스는 -1
+
+// 저장될 때부터 모든 토마토가 익어있는 상태이면 0
+// 토마토가 익지 못 할 경우 -1 출력
+
+// 먼저, 토마토의 위치가 있는 상자부터 찾는다
+// 좌표를 찾으면 큐에 넣고 bfs를 돌린다. 이 때, 상하좌우로 1로 만들어준다.
+// while문이 돌아 간 만큼 cnt++
+// while문이 끝나고 map 검사 할 때, 0이 있으면 -1 출력
