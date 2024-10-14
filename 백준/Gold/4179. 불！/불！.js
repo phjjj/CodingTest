@@ -1,64 +1,103 @@
-const fs = require("fs");
 const filePath = process.platform === "linux" ? "/dev/stdin" : "test.txt";
-const input = fs.readFileSync(filePath, "utf8").trim().split("\n");
+const input = require("fs")
+  .readFileSync(filePath)
+  .toString()
+  .trim()
+  .split("\n");
+
 const [R, C] = input.shift().split(" ").map(Number);
+const map = input;
 
-const map = input.map((v) => v.split(""));
-// 불
+const dir = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+
+// 불의 이동 경로
 let fireQueue = [];
-let fireMap = input.map((v) => v.split(""));
-// 지훈
-let jihunQueue = [];
-let jihunMap = input.map((v) => v.split(""));
-
-const dir = [
-  [1, 0],
-  [-1, 0],
-  [0, 1],
-  [0, -1],
-];
-
-for (let i = 0; i < input.length; i++) {
-  for (let j = 0; j < input[0].length; j++) {
+for (let i = 0; i < R; i++) {
+  for (let j = 0; j < C; j++) {
     if (map[i][j] === "F") {
       fireQueue.push([i, j, 0]);
-      fireMap[i][j] = 0;
-    }
-    if (map[i][j] === "J") {
-      jihunQueue.push([i, j, 0]);
-      jihunMap[i][j] = 0;
     }
   }
 }
+
+// 불 위치 구하기
+const fireVisited = Array.from({ length: R }, () =>
+  Array.from({ length: C }, () => false)
+);
+// 불의 위치 저장
+const fireMap = Array.from({ length: R }, () =>
+  Array.from({ length: C }, () => Infinity) // 불이 없는 곳은 최대값으로 설정
+);
 
 while (fireQueue.length) {
-  const [x, y, t] = fireQueue.shift();
-  for (let i = 0; i < 4; i++) {
-    const curX = x + dir[i][0];
-    const curY = y + dir[i][1];
+  let [curX, curY, v] = fireQueue.shift();
 
-    if (curX < 0 || curX >= R || curY < 0 || curY >= C) continue;
-    if (fireMap[curX][curY] >= 0 || map[curX][curY] === "#") continue;
-    fireMap[curX][curY] = t + 1;
-    fireQueue.push([curX, curY, t + 1]);
+  for (let i = 0; i < dir.length; i++) {
+    const moveX = curX + dir[i][0];
+    const moveY = curY + dir[i][1];
+
+    if (
+      moveX >= 0 &&
+      moveY >= 0 &&
+      moveX < R &&
+      moveY < C &&
+      map[moveX][moveY] === "."
+    ) {
+      if (!fireVisited[moveX][moveY]) {
+        fireMap[moveX][moveY] = v + 1;
+        fireQueue.push([moveX, moveY, v + 1]);
+        fireVisited[moveX][moveY] = true;
+      }
+    }
   }
 }
 
-while (jihunQueue.length) {
-  const [x, y, t] = jihunQueue.shift();
-  for (let i = 0; i < 4; i++) {
-    const curX = x + dir[i][0];
-    const curY = y + dir[i][1];
+// 지훈이 이동
+let JihunQueue = [];
+const JihunVisited = Array.from({ length: R }, () =>
+  Array.from({ length: C }, () => false)
+);
 
-    if (curX < 0 || curX >= R || curY < 0 || curY >= C) {
-      console.log(t + 1);
-      return;
+for (let i = 0; i < R; i++) {
+  for (let j = 0; j < C; j++) {
+    if (map[i][j] === "J") {
+      JihunQueue.push([i, j, 0]);
+      JihunVisited[i][j] = true; // 시작점도 방문 처리
+    }
+  }
+}
+
+jihunRoute();
+
+function jihunRoute() {
+  while (JihunQueue.length) {
+    let [curX, curY, v] = JihunQueue.shift();
+    
+    // 지훈이가 가장자리에 도달했을 때 탈출 성공
+    if (curX === 0 || curY === 0 || curX === R - 1 || curY === C - 1) {
+      return console.log(v + 1);
     }
 
-    if (jihunMap[curX][curY] >= 0 || map[curX][curY] === "#" || fireMap[curX][curY] <= t + 1) continue;
-    jihunMap[curX][curY] = t + 1;
-    jihunQueue.push([curX, curY, t + 1]);
-  }
-}
+    for (let i = 0; i < dir.length; i++) {
+      const moveX = curX + dir[i][0];
+      const moveY = curY + dir[i][1];
 
-console.log("IMPOSSIBLE");
+      if (
+        moveX >= 0 &&
+        moveY >= 0 &&
+        moveX < R &&
+        moveY < C &&
+        map[moveX][moveY] === "."
+      ) {
+        if (
+          !JihunVisited[moveX][moveY] &&
+          (fireMap[moveX][moveY] > v + 1 || fireMap[moveX][moveY] === Infinity)
+        ) {
+          JihunQueue.push([moveX, moveY, v + 1]);
+          JihunVisited[moveX][moveY] = true;
+        }
+      }
+    }
+  }
+  return console.log("IMPOSSIBLE");
+}
