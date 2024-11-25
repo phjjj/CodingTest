@@ -1,19 +1,28 @@
+const filePath = process.platform === "linux" ? "/dev/stdin" : "test.txt";
 const input = require("fs")
-  .readFileSync("/dev/stdin")
+  .readFileSync(filePath)
   .toString()
-  .split("\n")
-  .map(Number);
+  .trim()
+  .split("\n");
 
-const N = input[0];
+const s = +input.shift();
+const stair = input.map(Number);
 
-const dp = new Array(N + 1);
+const dp = Array.from({ length: s + 1 }, () => 0);
 
-dp[1] = input[1];
-dp[2] = dp[1] + input[2];
-dp[3] = Math.max(input[1], input[2]) + input[3];
+dp[1] = stair[0];
+dp[2] = dp[1] + stair[1];
+dp[3] = Math.max(stair[0], stair[1]) + stair[2];
 
-for (let i = 4; i <= N; i++) {
-  dp[i] = Math.max(dp[i - 3] + input[i - 1] + input[i], dp[i - 2] + input[i]);
+for (let i = 4; i <= stair.length; i++) {
+  dp[i] = Math.max(
+    dp[i - 2] + stair[i - 1],
+    dp[i - 3] + stair[i - 2] + stair[i - 1]
+  );
 }
 
-console.log(dp[N]);
+console.log(dp[s]);
+// 테이블정의
+// dp[k]= k계단 까지 왔을 때의 최댓값
+// 점화식
+// dp[n] = Math.max(dp[n-1] + dp[n], dp[n-2] + dp[n])
